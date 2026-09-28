@@ -4,7 +4,16 @@ import { env } from './env.js';
 export interface RowDataPacket { [key:string]:unknown }
 export interface ResultSetHeader { affectedRows:number }
 
-const pool=new Pool({connectionString:env.DATABASE_URL,max:env.DB_POOL_MAX,idleTimeoutMillis:30_000,connectionTimeoutMillis:10_000,ssl:env.NODE_ENV==='production'?{rejectUnauthorized:false}:undefined});
+const databaseUrl=()=>{
+  if(env.NODE_ENV!=='production')return env.DATABASE_URL;
+  const url=new URL(env.DATABASE_URL);
+  // node-postgres replaces an explicit SSL object when these URL options exist.
+  // Keep TLS controlled here so Supabase's pooler certificate chain works on Render.
+  for(const parameter of ['sslmode','sslcert','sslkey','sslrootcert'])url.searchParams.delete(parameter);
+  return url.toString();
+};
+
+const pool=new Pool({connectionString:databaseUrl(),max:env.DB_POOL_MAX,idleTimeoutMillis:30_000,connectionTimeoutMillis:10_000,ssl:env.NODE_ENV==='production'?{rejectUnauthorized:false}:undefined});
 const parameterize=(sql:string)=>{let index=0;return sql.replace(/\?/g,()=>`$${++index}`);};
 
 class DatabaseConnection {
