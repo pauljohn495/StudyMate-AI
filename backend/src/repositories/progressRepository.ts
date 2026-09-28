@@ -30,17 +30,17 @@ export const getRecentLessons=async(userId:string)=>{const [rows]=await db.query
   UNION ALL SELECT lesson_id,started_at FROM study_sessions WHERE user_id=? AND lesson_id IS NOT NULL
 ) activity JOIN lessons l ON l.id=activity.lesson_id JOIN subjects s ON s.id=l.subject_id LEFT JOIN (SELECT q.lesson_id,ROUND(SUM(qa.correct_count)::numeric/NULLIF(SUM(qa.total_count),0)*100,2) accuracy FROM quiz_attempts qa JOIN quizzes q ON q.id=qa.quiz_id WHERE qa.user_id=? GROUP BY q.lesson_id) stats ON stats.lesson_id=l.id GROUP BY l.id,l.title,s.id,s.name,s.color,stats.accuracy ORDER BY last_activity DESC LIMIT 5`,[userId,userId,userId,userId]);return rows.map(row=>({...row,accuracy:Number(row.accuracy)}));};
 
-export const getWeeklyActions=async(userId:string,offsetMinutes:number)=>{const [rows]=await db.query<(RowDataPacket&{day:string;actions:number})[]>(`SELECT TO_CHAR(activity_at+(? * INTERVAL '1 minute'),'YYYY-MM-DD') day,COUNT(*) actions FROM (
+export const getWeeklyActions=async(userId:string,offsetMinutes:number)=>{const [rows]=await db.query<(RowDataPacket&{day:string;actions:number})[]>(`SELECT TO_CHAR(activity_at+(? * INTERVAL '1 minute'),'YYYY-MM-DD') AS "day",COUNT(*) actions FROM (
   SELECT completed_at activity_at FROM quiz_attempts WHERE user_id=?
   UNION ALL SELECT reviewed_at FROM flashcard_reviews WHERE user_id=?
-) activity WHERE activity_at>=CURRENT_TIMESTAMP-INTERVAL '8 days' GROUP BY day`,[offsetMinutes,userId,userId]);return rows.map(row=>({...row,actions:Number(row.actions)}));};
+) activity WHERE activity_at>=CURRENT_TIMESTAMP-INTERVAL '8 days' GROUP BY "day"`,[offsetMinutes,userId,userId]);return rows.map(row=>({...row,actions:Number(row.actions)}));};
 
-export const getWeeklyMinutes=async(userId:string,offsetMinutes:number)=>{const [rows]=await db.query<(RowDataPacket&{day:string;minutes:number})[]>(`SELECT TO_CHAR(started_at+(? * INTERVAL '1 minute'),'YYYY-MM-DD') day,ROUND(SUM(duration_seconds)::numeric/60) minutes FROM study_sessions WHERE user_id=? AND started_at>=CURRENT_TIMESTAMP-INTERVAL '8 days' GROUP BY day`,[offsetMinutes,userId]);return rows.map(row=>({...row,minutes:Number(row.minutes)}));};
+export const getWeeklyMinutes=async(userId:string,offsetMinutes:number)=>{const [rows]=await db.query<(RowDataPacket&{day:string;minutes:number})[]>(`SELECT TO_CHAR(started_at+(? * INTERVAL '1 minute'),'YYYY-MM-DD') AS "day",ROUND(SUM(duration_seconds)::numeric/60) minutes FROM study_sessions WHERE user_id=? AND started_at>=CURRENT_TIMESTAMP-INTERVAL '8 days' GROUP BY "day"`,[offsetMinutes,userId]);return rows.map(row=>({...row,minutes:Number(row.minutes)}));};
 
-export const getActivityDates=async(userId:string,offsetMinutes:number)=>{const [rows]=await db.query<(RowDataPacket&{day:string})[]>(`SELECT DISTINCT TO_CHAR(activity_at+(? * INTERVAL '1 minute'),'YYYY-MM-DD') day FROM (
+export const getActivityDates=async(userId:string,offsetMinutes:number)=>{const [rows]=await db.query<(RowDataPacket&{day:string})[]>(`SELECT DISTINCT TO_CHAR(activity_at+(? * INTERVAL '1 minute'),'YYYY-MM-DD') AS "day" FROM (
   SELECT completed_at activity_at FROM quiz_attempts WHERE user_id=?
   UNION ALL SELECT reviewed_at FROM flashcard_reviews WHERE user_id=?
   UNION ALL SELECT started_at FROM study_sessions WHERE user_id=?
-) activity ORDER BY day`,[offsetMinutes,userId,userId,userId]);return rows.map(row=>row.day);};
+) activity ORDER BY "day"`,[offsetMinutes,userId,userId,userId]);return rows.map(row=>row.day);};
 
 export const recordStudySession=async(input:{userId:string;lessonId:string|null;activityType:'lesson'|'reviewer'|'flashcards'|'quiz'|'exam'|'tutor';startedAt:Date;endedAt:Date;durationSeconds:number},connection:typeof db|Awaited<ReturnType<typeof db.getConnection>>=db)=>{await connection.execute(`INSERT INTO study_sessions (id,user_id,lesson_id,activity_type,duration_seconds,started_at,ended_at) VALUES (?,?,?,?,?,?,?)`,[randomUUID(),input.userId,input.lessonId,input.activityType,input.durationSeconds,input.startedAt,input.endedAt]);};

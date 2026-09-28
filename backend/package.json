@@ -7,7 +7,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "test": "tsx --test src/config/databaseMigration.test.ts src/services/documentService.test.ts src/services/studyFeatures.test.ts",
+    "test": "tsx --test src/config/databaseMigration.test.ts src/repositories/progressRepository.test.ts src/services/documentService.test.ts src/services/studyFeatures.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
