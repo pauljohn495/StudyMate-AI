@@ -1,0 +1,31 @@
+import { ArrowLeft, Construction, Download, MonitorCog, Save, Sparkles, UserRound, Wifi, WifiOff } from 'lucide-react';
+import { type FormEvent, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ThemeToggle } from '../components/ui/ThemeToggle';
+import { apiMessage } from '../lib/api';
+import { initials } from '../lib/utils';
+import { useAuth, type ProfileUpdate } from '../store/AuthContext';
+import { usePwa } from '../store/PwaContext';
+
+export function ComingSoonPage(){return <div className="grid min-h-[68vh] place-items-center"><div className="max-w-md text-center"><span className="mx-auto grid size-16 place-items-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300"><Construction size={28}/></span><p className="eyebrow mt-6">Next development phase</p><h1 className="mt-2 font-display text-3xl font-extrabold">This workspace is on the roadmap</h1><p className="mt-4 text-sm leading-6 text-slate-500 dark:text-slate-400">The foundation is ready. New study capabilities will be added carefully so each feature remains dependable.</p><Link to="/app" className="btn-primary mt-7"><ArrowLeft size={16}/>Back to dashboard</Link></div></div>;}
+
+export function SettingsPage(){
+  const {user,isDemo,updateProfile}=useAuth();const {canInstall,isInstalled,isOnline,install}=usePwa();
+  const [form,setForm]=useState<ProfileUpdate>({name:'',course:'',yearLevel:'',school:''});const [saving,setSaving]=useState(false);const [message,setMessage]=useState('');const [error,setError]=useState('');
+  useEffect(()=>{setForm({name:user?.name??'',course:user?.course??'',yearLevel:user?.yearLevel??'',school:user?.school??''});},[user]);
+  const field=(name:keyof ProfileUpdate)=>(event:React.ChangeEvent<HTMLInputElement>)=>setForm(value=>({...value,[name]:event.target.value}));
+  const save=async(event:FormEvent)=>{event.preventDefault();setError('');setMessage('');if(!form.name.trim()){setError('Your full name is required.');return;}setSaving(true);try{await updateProfile({...form,name:form.name.trim()});setMessage('Profile changes saved.');}catch(error){setError(apiMessage(error));}finally{setSaving(false);}};
+  return <div className="max-w-4xl"><p className="eyebrow">Preferences & account</p><h1 className="mt-2 font-display text-3xl font-extrabold">Settings</h1><p className="mt-2 text-sm text-slate-500">Manage the details and display preferences used in your workspace.</p>
+    <div className="mt-7 space-y-5">
+      <form className="card p-5 sm:p-6" onSubmit={save}><div className="flex items-center gap-4"><span className="grid size-14 place-items-center rounded-2xl bg-ink text-sm font-extrabold text-white dark:bg-brand-600">{initials(user?.name??'')}</span><div className="min-w-0"><h2 className="flex items-center gap-2 font-display text-lg font-extrabold"><UserRound size={19}/>Profile information</h2><p className="truncate text-sm text-slate-400">{user?.email}</p></div></div>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2"><div><label htmlFor="profile-name" className="label">Full name</label><input id="profile-name" className="input" value={form.name} onChange={field('name')} autoComplete="name" disabled={isDemo||saving} required/></div><div><label htmlFor="profile-course" className="label">Course</label><input id="profile-course" className="input" value={form.course} onChange={field('course')} placeholder="e.g. BS Information Technology" disabled={isDemo||saving}/></div><div><label htmlFor="profile-year" className="label">Year level</label><input id="profile-year" className="input" value={form.yearLevel} onChange={field('yearLevel')} placeholder="e.g. 3rd Year" disabled={isDemo||saving}/></div><div><label htmlFor="profile-school" className="label">School</label><input id="profile-school" className="input" value={form.school} onChange={field('school')} placeholder="Add your school" autoComplete="organization" disabled={isDemo||saving}/></div></div>
+        {isDemo&&<p className="mt-4 rounded-xl bg-amber-50 p-3 text-xs font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">Profile edits are disabled in the shared demo workspace.</p>}{error&&<p role="alert" className="mt-4 text-sm font-semibold text-rose-600">{error}</p>}{message&&<p role="status" className="mt-4 text-sm font-semibold text-emerald-600">{message}</p>}
+        <button type="submit" className="btn-primary mt-5" disabled={isDemo||saving}><Save size={16}/>{saving?'Saving…':'Save changes'}</button>
+      </form>
+      <section className="card flex items-center justify-between gap-4 p-5 sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"><MonitorCog size={19}/></span><div><h2 className="font-bold">Color theme</h2><p className="text-xs text-slate-400">Switch between light and dark display.</p></div></div><ThemeToggle/></section>
+      <section className="card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"><div className="flex items-center gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">{isOnline?<Wifi size={19}/>:<WifiOff size={19}/>}</span><div><h2 className="font-bold">StudyMate app</h2><p className="text-xs text-slate-400">{isInstalled?'Installed on this device':isOnline?'Install for faster access and offline support':'You are offline; previously opened resources remain available.'}</p></div></div>{canInstall&&<button type="button" onClick={()=>void install()} className="btn-secondary"><Download size={16}/>Install app</button>}</section>
+    </div>
+  </div>;
+}
+
+export function NotFoundPage(){return <main className="grid min-h-screen place-items-center bg-canvas px-5 text-center dark:bg-slate-950"><div><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-brand-50 text-brand-600"><Sparkles/></span><p className="eyebrow mt-6">404 error</p><h1 className="mt-2 font-display text-3xl font-extrabold">This page wandered off</h1><p className="mt-3 text-sm text-slate-500">Let’s get you back to your study workspace.</p><Link to="/" className="btn-primary mt-6">Return home</Link></div></main>;}

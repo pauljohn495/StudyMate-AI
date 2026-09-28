@@ -1,0 +1,28 @@
+{
+  "id": "/app",
+  "name": "StudyMate AI",
+  "short_name": "StudyMate",
+  "description": "Turn your learning materials into focused reviewers, flashcards, quizzes, exams, and study plans.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#f5f7fb",
+  "theme_color": "#5050d8",
+  "orientation": "any",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Dashboard", "short_name": "Dashboard", "url": "/app", "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }] },
+    { "name": "AI Tutor", "short_name": "Tutor", "url": "/app/tutor", "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }] },
+    { "name": "Practice Exams", "short_name": "Exams", "url": "/app/exams", "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }] },
+    { "name": "Study Planner", "short_name": "Planner", "url": "/app/planner", "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }] }
+  ]
+}

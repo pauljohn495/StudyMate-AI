@@ -1,0 +1,16 @@
+{
+  "name": "studymate-ai",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,magenta \"npm run dev -w @studymate/api\" \"npm run dev -w @studymate/web\"",
+    "build": "npm run build -w @studymate/api && npm run build -w @studymate/web",
+    "typecheck": "npm run typecheck -w @studymate/api && npm run typecheck -w @studymate/web",
+    "db:up": "docker compose up -d mysql",
+    "db:down": "docker compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

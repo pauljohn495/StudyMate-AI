@@ -1,0 +1,2 @@
+import { Router } from 'express';import * as controller from '../controllers/tutorController.js';import { requireAuth } from '../middleware/auth.js';import { asyncHandler } from '../utils/asyncHandler.js';
+export const tutorRouter=Router();tutorRouter.use(requireAuth);tutorRouter.get('/lessons',asyncHandler(controller.lessons));tutorRouter.get('/conversations',asyncHandler(controller.conversations));tutorRouter.get('/conversations/:id',asyncHandler(controller.conversation));tutorRouter.post('/messages',asyncHandler(controller.message));

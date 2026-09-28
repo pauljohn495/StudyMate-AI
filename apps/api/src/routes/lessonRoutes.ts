@@ -1,0 +1,24 @@
+import { Router } from 'express';
+import * as controller from '../controllers/lessonController.js';
+import { requireAuth } from '../middleware/auth.js';
+import { validate } from '../middleware/validate.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { lessonUpdateSchema, subjectIdSchema } from '../validation/schemas.js';
+import * as documentController from '../controllers/documentController.js';
+import { uploadDocument } from '../middleware/upload.js';
+import * as aiController from '../controllers/aiController.js';
+import * as flashcardController from '../controllers/flashcardController.js';
+import * as quizController from '../controllers/quizController.js';
+
+export const lessonRouter = Router();
+lessonRouter.use(requireAuth);
+lessonRouter.get('/:id', validate(subjectIdSchema), asyncHandler(controller.get));
+lessonRouter.get('/:id/documents', asyncHandler(documentController.list));
+lessonRouter.get('/:id/topics', asyncHandler(aiController.lessonTopics));
+lessonRouter.get('/:id/reviewers', asyncHandler(aiController.lessonReviewers));
+lessonRouter.get('/:id/summaries', asyncHandler(aiController.lessonSummaries));
+lessonRouter.get('/:id/flashcard-decks', asyncHandler(flashcardController.listForLesson));
+lessonRouter.get('/:id/quizzes', asyncHandler(quizController.listForLesson));
+lessonRouter.post('/:id/documents', uploadDocument, asyncHandler(documentController.upload));
+lessonRouter.patch('/:id', validate(lessonUpdateSchema), asyncHandler(controller.update));
+lessonRouter.delete('/:id', validate(subjectIdSchema), asyncHandler(controller.remove));

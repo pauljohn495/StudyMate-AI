@@ -1,0 +1,5 @@
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+
+const names:Record<string,string>={app:'Dashboard',subjects:'Subjects',lessons:'Lesson',materials:'Study materials',reviewers:'Reviewers',flashcards:'Flashcards',quizzes:'Quizzes',tutor:'AI tutor',exams:'Practice exams',planner:'Study planner',progress:'Progress',settings:'Settings',login:'Sign in',register:'Create account'};
+export function RouteEffects(){const {pathname}=useLocation();const [announcement,setAnnouncement]=useState('');useEffect(()=>{const parts=pathname.split('/').filter(Boolean);const key=parts[0]==='app'?(parts[1]??'app'):parts[0];const title=names[key]??'StudyMate';document.title=`${title} · StudyMate`;setAnnouncement(`${title} page loaded`);requestAnimationFrame(()=>{const main=document.getElementById('main-content');if(main){main.focus({preventScroll:true});window.scrollTo({top:0,behavior:'auto'});}});},[pathname]);return <p className="sr-only" role="status" aria-live="polite">{announcement}</p>;}
