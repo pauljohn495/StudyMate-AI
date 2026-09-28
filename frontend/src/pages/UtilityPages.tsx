@@ -1,4 +1,4 @@
-import { ArrowLeft, Construction, Download, MonitorCog, Save, Sparkles, UserRound, Wifi, WifiOff } from 'lucide-react';
+import { Download, MonitorCog, Save, Sparkles, UserRound, Wifi, WifiOff } from 'lucide-react';
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
@@ -6,8 +6,6 @@ import { apiMessage } from '../lib/api';
 import { initials } from '../lib/utils';
 import { useAuth, type ProfileUpdate } from '../store/AuthContext';
 import { usePwa } from '../store/PwaContext';
-
-export function ComingSoonPage(){return <div className="grid min-h-[68vh] place-items-center"><div className="max-w-md text-center"><span className="mx-auto grid size-16 place-items-center rounded-2xl bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-300"><Construction size={28}/></span><p className="eyebrow mt-6">Next development phase</p><h1 className="mt-2 font-display text-3xl font-extrabold">This workspace is on the roadmap</h1><p className="mt-4 text-sm leading-6 text-slate-500 dark:text-slate-400">The foundation is ready. New study capabilities will be added carefully so each feature remains dependable.</p><Link to="/app" className="btn-primary mt-7"><ArrowLeft size={16}/>Back to dashboard</Link></div></div>;}
 
 export function SettingsPage(){
   const {user,isDemo,updateProfile}=useAuth();const {canInstall,isInstalled,isOnline,install}=usePwa();
