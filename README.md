@@ -9,13 +9,14 @@ Phases 1–11 are implemented: a responsive installable PWA, Express API, JWT au
 Requirements: Node.js 20+, npm, and Docker Desktop.
 
 ```bash
-copy .env.example .env
 npm install
+npm run setup
+copy backend\.env.example backend\.env
 npm run db:up
 npm run dev
 ```
 
-Open `http://localhost:5173`. The **Explore demo** path runs entirely in the browser and includes flashcard, quiz, tutor, practice-exam, and study-planner workflows without MySQL or Gemini. Registering a real account uses the Express API and MySQL.
+Open `http://localhost:5173`. The **Explore demo** path runs entirely in the browser and includes flashcard, quiz, tutor, practice-exam, and study-planner workflows without PostgreSQL or Gemini. Registering a real account uses the Express API and PostgreSQL.
 
 In a production build served over HTTPS (or locally through `localhost`), supported browsers offer an **Install** action in the application header. Safari on iPhone and iPad displays instructions for adding StudyMate to the Home Screen. The service worker keeps the application shell and previously opened frontend bundles available offline. Safe GET responses are cached for 30 days in user-isolated IndexedDB storage and are removed at logout; AI generation, uploads, scoring submissions, and other writes still require a connection.
 
@@ -25,14 +26,14 @@ In a production build served over HTTPS (or locally through `localhost`), suppor
 npm run dev                         # web + API
 npm run build                       # production builds
 npm run typecheck                   # TypeScript validation
-npm run test -w @studymate/api      # document and study-feature tests
-npm run db:up                       # start MySQL with Docker
+npm test                            # API and database tests
+npm run db:up                       # start PostgreSQL with Docker
 npm run db:down                     # stop local services
 ```
 
 API health check: `GET http://localhost:4000/api/health`
 
-Document limits default to 20 MB, 200 PDF pages or presentation slides, and five uploads per user per day. AI generation limits are configurable in `.env`. Image-only PDFs require OCR, which is intentionally deferred to a later version.
+Document limits default to 20 MB, 200 PDF pages or presentation slides, and five uploads per user per day. AI generation limits are configurable in `backend/.env`. Image-only PDFs require OCR, which is intentionally deferred to a later version.
 
 ## Implemented study workflow
 
@@ -54,10 +55,22 @@ Document limits default to 20 MB, 200 PDF pages or presentation slides, and five
 
 ## Repository
 
-- `apps/web` — React, TypeScript, Vite, Tailwind, React Router
-- `apps/api` — Express, TypeScript, MySQL, JWT, bcrypt, Zod, Gemini
-- `database/schema.sql` — normalized database schema and indexes
-- `database/migrations` — incremental schema upgrades
+- `frontend` — independently deployable React, TypeScript, Vite, Tailwind, React Router app
+- `backend` — independently deployable Express, TypeScript, PostgreSQL, Supabase Storage, JWT, bcrypt, Zod, Gemini API
+- `backend/database/schema.sql` — normalized database schema and indexes
+- `backend/database/migrations` — incremental schema upgrades
 - `docs/SYSTEM_DESIGN.md` — architecture, endpoint map, AI design, and roadmap
 
-Secrets belong in `.env`, which is gitignored. The Gemini key is server-only.
+Backend secrets belong in `backend/.env`, which is gitignored. The Gemini key is server-only.
+
+## Vercel + Render + Supabase deployment
+
+1. Create a Supabase project and run `backend/database/schema.sql` once in its SQL Editor.
+2. Run `backend/database/supabase-storage.sql` to create the private `study-documents` bucket.
+3. Deploy `render.yaml` as a Render Blueprint and provide `CLIENT_URL`, the Supabase Session Pooler `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, and `GEMINI_API_KEY`.
+4. Import the repository into Vercel with `frontend` as the Root Directory. Set `VITE_API_URL` to the Render URL followed by `/api`.
+5. Set Render's `CLIENT_URL` to the final Vercel production origin, then redeploy the API.
+
+See `docs/DEPLOYMENT.md` for the exact environment-variable and smoke-test checklist.
+
+Production uses private Supabase Storage when its URL and secret key are configured. Local development falls back to `UPLOAD_DIR`. Never expose the Supabase secret key, database URL, Gemini key, or JWT secret through a `VITE_` environment variable.

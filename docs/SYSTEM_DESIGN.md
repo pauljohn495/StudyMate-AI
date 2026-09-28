@@ -19,22 +19,22 @@ Express REST API
   |-- AI gateway (Gemini, quotas, cache, validation)
   |-- document pipeline (extract, clean, chunk)
         |
-        +-- MySQL 8
-        +-- local file storage (replaceable adapter)
+        +-- PostgreSQL / Supabase
+        +-- private Supabase Storage (local adapter in development)
         +-- Gemini API (server-side only)
 ```
 
-The API is stateless and can scale horizontally. Generated resources are persisted and opened from MySQL; AI is called only for explicit generation or regeneration. Storage and AI providers are adapters so cloud storage, another model, or vector retrieval can be introduced without rewriting controllers.
+The API is stateless and can scale horizontally. Generated resources are persisted and opened from PostgreSQL; AI is called only for explicit generation or regeneration. Original files use a storage adapter backed by private Supabase Storage in production and the local filesystem in development.
 
 ## Project structure
 
 ```text
-apps/web/src/
+frontend/src/
   components/       shared UI and responsive shell
   pages/            route-level views
   lib/              API client, query client, utilities
   store/            authentication and demo persistence
-apps/api/src/
+backend/src/
   config/           validated environment and database pool
   controllers/      request/response translation
   middleware/       authentication, validation, errors
@@ -42,7 +42,7 @@ apps/api/src/
   routes/           REST route composition
   services/         domain orchestration and AI gateway
   utils/            errors and async helpers
-database/           base schema and incremental migrations
+backend/database/   base schema and incremental migrations
 ```
 
 ## REST API
@@ -134,7 +134,7 @@ Successful ownership-checked GET responses for study resources are stored for up
 
 ## Development roadmap
 
-1. **Foundation (implemented):** responsive shell, auth, MySQL, subject and lesson CRUD.
+1. **Foundation (implemented):** responsive shell, auth, PostgreSQL, subject and lesson CRUD.
 2. **Documents (implemented):** secure multipart upload, replaceable local storage adapter, PDF/DOCX/PPTX/TXT extractors, cleaning, chunking, processing states, preview, download, and deletion.
 3. **Initial AI (implemented):** centralized Gemini adapter with retry/fallback, quota log, grounded topic/reviewer/summary generation, schema validation and source-version caching.
 4. **Flashcards (implemented):** grounded generation, persisted decks, library and study mode, Again/Hard/Good/Easy scheduling, review history, and due counters.

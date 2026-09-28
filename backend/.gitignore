@@ -3,10 +3,8 @@ dist/
 .env
 .env.*
 !.env.example
-**/uploads/*
-!**/uploads/.gitkeep
+uploads/*
+!uploads/.gitkeep
 *.log
-.DS_Store
-.vite/
 coverage/
 *.tsbuildinfo
